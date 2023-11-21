@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "head.html" %}
+</head>
+<body>
+<body class="bg-light" style="background-image: url('https://img.freepik.com/vector-premium/fondo-color-verde-pastel-abstracto-efecto-degradado-diseno-grafico-banner-sitio-web_120819-465.jpg'); background-size: cover;">
+{% include "navbar.html" %}
+
+<section class="py-1">
+    <div class="row mt-5">
+        <div class="col-md-3 offset-lg-2">
+            <h3>Generar Datset{{ prs }}</h3>
+            <hr>
+            <img src="{{ url_for('vidfeed_dataset', nbr=prs) }}" width="100%" class="img-thumbnail">
+        </div>
+    </div>
+
+    <br>
+    <div class="row">
+        <div class="col-md-3 offset-lg-2">
+            <a class="btn btn-warning btn-lg" href="{{ url_for('train_classifier', nbr=prs) }}"> Hecho </a>
+        </div>
+    </div>
+</section>
+</body>
+<footer style="background-color: #68ddbd; color: white; text-align: center; padding: 10px; width: 100%; position: fixed; bottom: 0; left: 0;">
+    &copy; Adolfo López Mateos 300, Barrio La Veracruz, 51350 San Miguel Zinacantepec, Méx. (722) 218 177
+</footer>
+</html>

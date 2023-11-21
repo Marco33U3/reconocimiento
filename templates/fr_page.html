@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include "head.html" %}
+    <!-- Agregar los siguientes scripts para tableExport -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="tableExport.js"></script>
+    <script type="text/javascript" src="jquery.base64.js"></script>
+    <script type="text/javascript" src="html2canvas.js"></script>
+    <script type="text/javascript" src="jspdf/libs/sprintf.js"></script>
+    <script type="text/javascript" src="jspdf/jspdf.js"></script>
+    <script type="text/javascript" src="jspdf/libs/base64.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+</head>
+
+<body class="bg-light" style="background-image: url('https://img.freepik.com/vector-premium/fondo-color-verde-pastel-abstracto-efecto-degradado-diseno-grafico-banner-sitio-web_120819-465.jpg'); background-size: cover;">
+    {% include "navbar.html" %}
+
+    <div class="container-fluid">
+        <div class="row mt-5 mb-5">
+            <div class="col-md-8">
+                <img src="{{ url_for('video_feed') }}" width="100%" class="img-thumbnail">
+            </div>
+            <div class="col-md-4" style="height:500px; overflow-y:auto;">
+                <h3 class="mb-3">Registros de Salida</h3>
+                <!-- Agregar cuadro de búsqueda por nombre -->
+                <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre">
+
+                <!-- Agregar botón para exportar a Excel -->
+                <button class="btn btn-primary mb-3" onclick="downloadRecords()">Descargar Registros</button>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th class="text-center">Id</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center">Parentezco</th>
+                                <th class="text-center">Hora de Salida</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scandata">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let lastcnt = 0;
+            let cnt;
+            chkNewScan();
+
+            function chkNewScan() {
+                countTodayScan();
+                setTimeout(chkNewScan, 1000);
+            }
+
+            function countTodayScan() {
+                $.ajax({
+                    url: '/countTodayScan',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        cnt = data.rowcount;
+                        if (cnt > lastcnt) {
+                            reloadTable();
+                        }
+
+                        lastcnt = cnt;
+                    },
+                    error: function (result) {
+                        console.log('no result!')
+                    }
+                })
+            }
+
+            function reloadTable() {
+                $.ajax({
+                    url: '/loadData',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        var tr = $("#scandata");
+                        tr.empty();
+
+                        $.each(response, function (index, item) {
+                            if (item.length > 0) {
+                                for (let i = 0; i < item.length; i++) {
+                                    tr.append('<tr>' +
+                                        '<td class="text-center">' + item[i][1] + '</td>' +
+                                        '<td class="text-center">' + item[i][2] + '</td>' +
+                                        '<td class="text-center">' + item[i][3] + '</td>' +
+                                        '<td class="text-center">' + item[i][4] + '</td>' +
+                                        '</tr>');
+                                }
+                            }
+                        });
+                    },
+                    error: function (result) {
+                        console.log('no result!')
+                    }
+                });
+            }
+
+            // Agregar la funcionalidad de búsqueda
+            $('#searchInput').on('input', function () {
+                var filterValue = $(this).val().toLowerCase();
+                $('#scandata tr').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(filterValue) > -1);
+                });
+            });
+        });
+
+        function downloadRecords() {
+            // Obtener los datos de la tabla
+            var table = document.querySelector('.table');
+            var rows = table.querySelectorAll('tbody tr');
+            var data = [['Person #', 'Name', 'Skill', 'Added']];
+
+            rows.forEach(function (row) {
+                var rowData = [];
+                var cols = row.querySelectorAll('td');
+                cols.forEach(function (col) {
+                    rowData.push(col.textContent);
+                });
+                data.push(rowData);
+            });
+
+            // Crear un libro de trabajo de Excel
+            var ws = XLSX.utils.aoa_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+            // Descargar el archivo XLSX
+            XLSX.writeFile(wb, 'today_scan_records.xlsx');
+        }
+    </script>
+</body>
+<footer style="background-color: #00BE53; color: white; text-align: center; padding: 10px; width: 100%; position: fixed; bottom: 0; left: 0;">
+    &copy; Adolfo López Mateos 300, Barrio La Veracruz, 51350 San Miguel Zinacantepec, Méx. (722) 218 177
+</footer>
+<!-- /Footer -->
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "head.html" %}
+</head>
+<body>
+<body class="bg-light" style="background-image: url('https://img.freepik.com/vector-premium/fondo-color-verde-pastel-abstracto-efecto-degradado-diseno-grafico-banner-sitio-web_120819-465.jpg'); background-size: cover;">
+{% include "navbar.html" %}
+
+<section class="py-1">
+    <div class="row mt-5">
+        <div class="col-lg-8 offset-lg-2">
+            <h3>Add Personnel</h3>
+            <hr>
+            <form class="form" method="post" action="/addprsn_submit">
+                <div class="form-group row">
+                    <label for="txtnbr" class="col-sm-2 col-form-label">Person Id</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="txtnbr" name="txtnbr" value={{ newnbr }} readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="txtname" class="col-sm-2 col-form-label">Nombre</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="txtname" name="txtname" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="optskill" class="col-sm-2 col-form-label">Parentezco</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" name="optskill" id="optskill">
+                            <option value="Papa">Papa</option>
+                            <option value="Mama">Mama</option>
+                            <option value="Hermano">Hermano</option>
+                            <option value="Hermana">Hermana</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-8">
+                        <input type="submit" class="btn btn-primary btn-lg" value="Siguiente">
+                        <a href="/" type="button" class="btn btn-warning btn-lg"><b>Atras</b></a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+</body>
+<footer style="background-color: #03bb85; color: white; text-align: center; padding: 10px; width: 100%; position: fixed; bottom: 0; left: 0;">
+    &copy; Adolfo López Mateos 300, Barrio La Veracruz, 51350 San Miguel Zinacantepec, Méx. (722) 218 177
+</footer>
+</html>

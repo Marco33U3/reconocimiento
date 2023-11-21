@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include "head.html" %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+</head>
+
+<body>
+<body class="bg-light" style="background-image: url('https://img.freepik.com/vector-premium/fondo-color-verde-pastel-abstracto-efecto-degradado-diseno-grafico-banner-sitio-web_120819-465.jpg'); background-size: cover;">
+{% include "navbar.html" %}
+
+    <section class="py-1">
+        <div class="row mt-5">
+            <div class="col-lg-8 offset-lg-2 text-center" style="overflow-y: auto; max-height: 80vh;"> <!-- Agregado el estilo para la barra de desplazamiento -->
+                <h3>Guarderia</h3> <!-- Agregado el estilo para centrar el texto -->
+                <hr>
+                <div class="row">
+                <div class="col-lg-4">
+                    <a href="/addprsn" type="button" class="btn btn-success btn-lg"><b>Agregar usuario</b></a>
+                </div>
+                <div class="col-lg-2">
+                    <button id="exportBtn" class="btn btn-primary btn-sm">Exportar a Excel</button>
+                </div>
+                <div class="col-lg-4 text-right" style="margin-right: 40px;"> <!-- Ajusta el valor del margin-right según tus necesidades -->
+                    <a href="/fr_page" type="button" class="btn btn-info btn-lg"><b>Reconocimiento Facial</b></a>
+                </div>
+                <div class="col-lg-2">
+                </div>
+            </div>
+                <br>
+                <form id="filterForm" method="get" action="/">
+
+                </form>
+                <table id="dataTable" class="table" style="width: 100%">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center">Id</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Parentezco</th>
+                            <th class="text-center">Afiliado</th>
+                            <th class="text-center">Fecha y hora Ingreso</th>
+                            <th class="text-center">Día</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr>
+                            <td class="text-center">{{item[0]}}</td>
+                            <td class="text-center">{{item[1]}}</td>
+                            <td class="text-center">{{item[2]}}</td>
+                            <td class="text-center">{{item[3]}}</td>
+                            <td class="text-center">{{item[4]}}</td>
+                            <td class="text-center">{% if item[4] %}{{ item[4].strftime('%A') }}{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        $(document).ready(function() {
+            var dataTable = $('#dataTable').DataTable({
+                "paging": true,
+                "pageLength": 10,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "columnDefs": [
+                    {
+                        "targets": 3, // Afiliado column
+                        "render": function(data, type, row, meta) {
+                            return data === 'Y' ? 'Sí' : 'No';
+                        }
+                    }
+                ]
+            });
+
+            $('#filter').on('input', function() {
+                var filterValue = $(this).val().toLowerCase();
+                dataTable.search(filterValue).draw();
+            });
+
+            $('.disable-btn').on('click', function() {
+                var personId = $(this).data('person-id');
+                var table = $('#dataTable').DataTable();
+                var row = table.row('[data-person-id="' + personId + '"]');
+                row.data()[3] = 'N';
+                table.draw();
+            });
+
+            $('#exportBtn').on('click', function() {
+                // Desactiva la paginación temporalmente
+                dataTable.one('preXhr.dt', function(e, settings, json) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    json.start = 0;
+                    json.length = -1;
+                });
+
+                // Exporta los datos
+                var ws = XLSX.utils.table_to_sheet(document.getElementById('dataTable'));
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+                // Restaura la paginación
+                dataTable.one('preXhr.dt', function(e, settings, json) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    json.start = api.page.info().start;
+                    json.length = api.page.info().length;
+                });
+
+                // Descarga el archivo
+                XLSX.writeFile(wb, 'personnel_data.xlsx');
+            });
+        });
+    </script>
+
+    </body>
+<footer style="background-color: #03bb85; color: white; text-align: center; padding: 10px; width: 100%; position: fixed; bottom: 0; left: 0;">
+    &copy; Adolfo López Mateos 300, Barrio La Veracruz, 51350 San Miguel Zinacantepec, Méx. (722) 218 177
+</footer>
+</html>
